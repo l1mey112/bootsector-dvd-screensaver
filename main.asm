@@ -12,7 +12,6 @@ struc rectdef
 	.h:      resw 1
 endstruc
 
-
 mov bp, sp
 
 mov ax, 0011h
@@ -72,10 +71,7 @@ start:
 	mov ax, word [velocity.y]
 	add word [rect + rectdef.y], ax
 
-
 jmp start
-
-jmp $
 
 velocity.x: dw 0
 velocity.y: dw 0
@@ -92,14 +88,11 @@ iend
 ; CX:DX microseconds
 ; 0xf4240 : one second
 sleep:
-	pusha
 	mov al, 0
 	mov ah, 0x86
 	mov dx, 0xAFFF
 	mov cx, 0x0
 	int 0x15
-	clc
-	popa
 	ret
 
 ; AX: (*rect)

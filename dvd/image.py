@@ -4,6 +4,9 @@ import sys
 from bitarray import bitarray
 import math
 
+# I HATE PYTHON BRUH
+# IT FUCKING SUCKS FOR LOW LEVEL STUFF
+
 def eprint(a):
 	sys.stderr.write(f"{a}\n")
 
