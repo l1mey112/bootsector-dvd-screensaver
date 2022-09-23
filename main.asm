@@ -1,33 +1,32 @@
 [BITS 16]
 
-%define VGA_WIDTH  320
-%define VGA_HEIGHT 200
+%define VGA_WIDTH  (640 / 8)
+%define VGA_HEIGHT 480
 
-%define BASEVELOCITY 2
+%define BASEVELOCITY 1
 
 struc rectdef
 	.x:      resw 1
 	.y:      resw 1
 	.w:      resw 1
 	.h:      resw 1
-	.colour: resb 1
 endstruc
 
 
 mov bp, sp
 
-mov ax, 0013h
+mov ax, 0011h
 int 0x10
 
 mov ax, 0xA0000 / 16  ; x86 segment 
 mov es, ax            ; to vram
 
 mov word [velocity.x], BASEVELOCITY
-mov word [velocity.y], BASEVELOCITY
+mov word [velocity.y], BASEVELOCITY * 8
 
 start:
-	mov byte [rect + rectdef.colour], 13
 	mov ax, rect
+	mov dx, 1
 	call draw_rect
 	call sleep
 
@@ -56,14 +55,14 @@ start:
 			jle down
 			jmp nextY
 		up:
-			mov word [velocity.y], -BASEVELOCITY
+			mov word [velocity.y], (-BASEVELOCITY * 8)
 			jmp nextY
 		down:
-			mov word [velocity.y], BASEVELOCITY
+			mov word [velocity.y], (BASEVELOCITY * 8)
 		nextY:
 
-	mov byte [rect + rectdef.colour], 0
 	mov ax, rect
+	mov dx, 0
 	call draw_rect
 	
 	call vblank_wait
@@ -85,9 +84,9 @@ rect:
 istruc rectdef
 	at rectdef.x,      dw VGA_WIDTH / 2
 	at rectdef.y,      dw VGA_HEIGHT / 2
-	at rectdef.w,      dw 30
-	at rectdef.h,      dw 20
-	at rectdef.colour, db 13
+	; image dimensions = (62, 27)
+	at rectdef.w,      dw 4
+	at rectdef.h,      dw 14
 iend
 
 ; CX:DX microseconds
@@ -104,6 +103,7 @@ sleep:
 	ret
 
 ; AX: (*rect)
+; DX: clear?
 draw_rect:
 	push bp
 	mov bp, sp
@@ -125,38 +125,54 @@ draw_rect:
 	mov ax, [bx + rectdef.y]
 	sub ax, [bx + rectdef.h]
 	push ax
+	push dx
 
+	; bp - 2  | x + w
+	; bp - 4  | x - w
+	; bp - 6  | y + h
+	; bp - 8  | y - h
+	; bp - 10 | clear bit
 
-	; bp - 2 | x + w
-	; bp - 4 | x - w
-	; bp - 6 | y + h
-	; bp - 8 | y - h
-
-	; AX: Horizontal
-	; BX: Vertical
+	; AX: Horizontal absolute screen position
+	; DX: Vertical absolute screen position
+	; CX: Vertical texture position
 	; DI: Address relative to VRAM
 	;     DI is always offset from ES in x86
-	; DX: colour
 
-	mov dx, [bx + rectdef.colour]
-	mov bx, [bp - 8]
+	mov cx, 0
+	mov dx, [bp - 8]
 	vloop:
 		mov ax, [bp - 4]
+		
+		mov bx, cx
+		imul bx, 8
 
-		mov di, bx
-		imul di, 320
+		mov di, dx
+		imul di, VGA_WIDTH
 		add di, [bp - 4]
-
 	hloop:
-		mov byte es:[di], dl
+		push dx
+		mov dx, [bp - 10]
+		test dl, dl
+		jne place
+		mov dl, 0
+		jmp skip
+	place:
+		mov dl, [image_dvd + bx]
+	skip:
+		mov es:[di], dl
+
+		pop dx
 		inc di
+		inc bx
 
 		inc ax
 		cmp ax, [bp - 2]
 		jne hloop
 
-		inc bx
-		cmp bx, [bp - 6]
+		inc cx
+		inc dx
+		cmp dx, [bp - 6]
 		jne vloop
 
 	leave
