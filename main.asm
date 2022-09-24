@@ -78,9 +78,9 @@ rect:
 istruc rectdef
 	at rectdef.x,      dw VGA_WIDTH / 2
 	at rectdef.y,      dw VGA_HEIGHT / 2
-	; image dimensions = (58, 25)
+	; image dimensions = (64, 28)
 	at rectdef.w,      dw 4
-	at rectdef.h,      dw 13
+	at rectdef.h,      dw 14
 iend
 
 ; CX:DX microseconds
@@ -149,17 +149,6 @@ draw_rect:
 		pop ax
 	.next:
 
-;			push dx
-;			mov dx, [bp - 10]
-;			test dl, dl
-;			jne .place
-;			mov dl, 0
-;			jmp .skip
-;		.place:
-;			mov dl, [image_dvd + bx]
-;		.skip:
-;			mov es:[di], dl
-;1			pop dx
 		inc ax
 		inc dx
 		cmp dx, [bp - 6]

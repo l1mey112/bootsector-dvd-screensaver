@@ -16,7 +16,7 @@ x, y = im.size
 
 eprint(f"old image dimensions = ({x}, {y})")
 
-r = 3.2
+r = 2.9
 x = int(x / r)
 y = int(y / r)
 
