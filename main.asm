@@ -24,7 +24,6 @@ mov word [velocity.x], BASEVELOCITY
 mov word [velocity.y], BASEVELOCITY * 8
 
 start:
-	mov ax, rect
 	mov dx, 1
 	call draw_rect
 	call sleep
@@ -60,7 +59,6 @@ start:
 			mov word [velocity.y], (BASEVELOCITY * 8)
 		nextY:
 
-	mov ax, rect
 	mov dx, 0
 	call draw_rect
 	
@@ -80,9 +78,9 @@ rect:
 istruc rectdef
 	at rectdef.x,      dw VGA_WIDTH / 2
 	at rectdef.y,      dw VGA_HEIGHT / 2
-	; image dimensions = (62, 27)
+	; image dimensions = (58, 25)
 	at rectdef.w,      dw 4
-	at rectdef.h,      dw 14
+	at rectdef.h,      dw 13
 iend
 
 ; CX:DX microseconds
@@ -101,24 +99,21 @@ draw_rect:
 	push bp
 	mov bp, sp
 
-	mov bx, ax
-	
-	mov ax, [bx + rectdef.x]
-	add ax, [bx + rectdef.w]
+	mov ax, [rect + rectdef.x]
+	add ax, [rect + rectdef.w]
 	push ax
 
-	mov ax, [bx + rectdef.x]
-	sub ax, [bx + rectdef.w]
+	mov ax, [rect + rectdef.x]
+	sub ax, [rect + rectdef.w]
 	push ax
 
-	mov ax, [bx + rectdef.y]
-	add ax, [bx + rectdef.h]
+	mov ax, [rect + rectdef.y]
+	add ax, [rect + rectdef.h]
 	push ax
 
-	mov ax, [bx + rectdef.y]
-	sub ax, [bx + rectdef.h]
+	mov ax, [rect + rectdef.y]
+	sub ax, [rect + rectdef.h]
 	push ax
-	push dx
 
 	; bp - 2  | x + w
 	; bp - 4  | x - w
@@ -126,44 +121,46 @@ draw_rect:
 	; bp - 8  | y - h
 	; bp - 10 | clear bit
 
-	; AX: Horizontal absolute screen position
-	; DX: Vertical absolute screen position
-	; CX: Vertical texture position
-	; DI: Address relative to VRAM
-	;     DI is always offset from ES in x86
+	mov bx, dx
 
-	mov cx, 0
+	mov ax, 0
 	mov dx, [bp - 8]
 	vloop:
-		mov ax, [bp - 4]
-		
-		mov bx, cx
-		imul bx, 8
-
 		mov di, dx
 		imul di, VGA_WIDTH
 		add di, [bp - 4]
+
+		imul si, ax, 8
+		add si, image_dvd
+
 	hloop:
-		push dx
-		mov dx, [bp - 10]
-		test dl, dl
-		jne place
-		mov dl, 0
-		jmp skip
-	place:
-		mov dl, [image_dvd + bx]
-	skip:
-		mov es:[di], dl
+		mov cx, 2
 
-		pop dx
-		inc di
-		inc bx
+		test bl, bl
+		je .zero
+		
+		rep movsd
+		
+		jmp .next
+	.zero:
+		push ax
+		mov ax, 0
+		rep stosd
+		pop ax
+	.next:
 
+;			push dx
+;			mov dx, [bp - 10]
+;			test dl, dl
+;			jne .place
+;			mov dl, 0
+;			jmp .skip
+;		.place:
+;			mov dl, [image_dvd + bx]
+;		.skip:
+;			mov es:[di], dl
+;1			pop dx
 		inc ax
-		cmp ax, [bp - 2]
-		jne hloop
-
-		inc cx
 		inc dx
 		cmp dx, [bp - 6]
 		jne vloop
