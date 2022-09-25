@@ -16,7 +16,7 @@ x, y = im.size
 
 eprint(f"old image dimensions = ({x}, {y})")
 
-r = 2.9
+r = 2.53
 x = int(x / r)
 y = int(y / r)
 
@@ -47,7 +47,9 @@ for b in range(0, alphab.__len__()):
 		bit_array.append(int(alphab[b] > 100))
 
 eprint(f"{bit_array.__len__()} in bits")
-eprint(f"index by {math.ceil(x / 8)} for each x scanline")
-eprint(f"height of {a} bytes")
+ner = int(math.ceil(x / 8))
+eprint(f"%define SCANLINE_BYTE_LEN {ner}")
+eprint(f"%define IMAGE_SCANLINE_AMT {int(round(int(a) / int(2)))}")
+eprint(f"%define IMAGE_RECT_WIDTH {int(round(int(ner) / int(2)))}")
 
 sys.stdout.buffer.write(bit_array.tobytes())

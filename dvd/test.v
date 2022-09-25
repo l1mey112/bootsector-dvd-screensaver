@@ -6,11 +6,18 @@ fn main(){
 	}
 	// println(bytes)
 
-	mut p := 0
-	for y := 0 ; y < 10 ; y++ {
-		for x := 0 ; x < 23 ; x++ {
-			st := if bytes[p] > 100 { "aa" } else { " " }
-			print(st)
+	for y := 0 ; y < 28 ; y++ {
+		mut p := y * 8
+		for x := 0 ; x < 8 ; x++ {
+			mut b := bytes[p]
+			for a := 0 ; a < 8 ; a++ {
+				if b & 1 != 0 {
+					print("#")
+				} else {
+					print(" ")
+				}
+				b <<=	 1
+			}
 			p++
 		}
 		println("")
