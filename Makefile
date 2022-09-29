@@ -1,14 +1,14 @@
-main.elf boot.bin: main.asm $(wildcard *.inc) Makefile dvd/rawdvdbytes
-	nasm -Ovx -g3 -F dwarf -f elf32 main.asm -o main.o
+main.elf boot.bin: main.asm $(wildcard *.inc) Makefile dvd/rawdvdbytes dvd/macroout
+	nasm -Ovx -g3 -F dwarf -f elf32 main.asm -o main.o $(shell cat dvd/macroout)
 	ld -Ttext=0x7c00 -m elf_i386 main.o -o boot.elf
 
 	objcopy --strip-unneeded -O binary boot.elf boot.bin
 	wc -c boot.bin
 	printf '\x55\xaa' | dd seek=510 bs=1 of=boot.bin
 
-.PHONY: dvd/rawdvdbytes
+.PHONY: dvd/rawdvdbytes dvd/macroout
 dvd/rawdvdbytes: 
-	cd dvd && python3 image.py > rawdvdbytes && wc -c rawdvdbytes
+	cd dvd && python3 image.py 2> macroout > rawdvdbytes && wc -c rawdvdbytes
 
 .PHONY: run
 run: boot.bin

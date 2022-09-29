@@ -2,7 +2,6 @@
 
 %define VGA_WIDTH  (640 / 8)
 %define VGA_HEIGHT 480
-
 %define BASEVELOCITY 1
 
 struc rectdef
@@ -62,16 +61,15 @@ jmp draw_loop
 velocity.x: dw BASEVELOCITY
 velocity.y: dw BASEVELOCITY * 8
 
-%define IMAGE_SCANLINE_AMT 16
-%define SCANLINE_BYTE_LEN 10 ; index by 10 for each x scanline
-%define IMAGE_RECT_WIDTH 5
+; %define IMAGE_SCANLINE_AMT 16
+; %define SCANLINE_BYTE_LEN 10 ; index by 10 for each x scanline
+; %define IMAGE_RECT_WIDTH 5
 
 rect:
 istruc rectdef
 	at rectdef.x,      dw VGA_WIDTH / 2
 	at rectdef.y,      dw VGA_HEIGHT / 2
 iend
-
 
 ; AX: (*rect)
 ; BL: clear?
@@ -155,6 +153,6 @@ image_dvd:
 incbin "dvd/rawdvdbytes"
 image_dvd_end:
 
-%if $-$$ > 512
+%if $-$$ > 510
 	%error ----- exeeded 512 bytes ----- 
 %endif
