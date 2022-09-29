@@ -46,3 +46,5 @@ https://user-images.githubusercontent.com/66291634/193046875-9077a510-4074-4270-
 
 ![](dvdlogo-in-qemu-0.png)
 ![](dvdlogo-in-qemu-1.png)
+
+[`mirrored from my git instance....`](https://git.l-m.dev/l-m/bootsector-dvd-screensaver)
