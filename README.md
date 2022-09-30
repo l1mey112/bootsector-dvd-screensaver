@@ -1,3 +1,5 @@
+# [blog post here!](https://blog.l-m.dev/posts/dvd_screensaver_bootsector/)
+
 # bootsector-dvd-screensaver
 
 Writing code for the bootsector introduces a unique problem, being limited to 512 bytes for data and code. That's right, data AND code.
